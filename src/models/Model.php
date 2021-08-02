@@ -30,7 +30,17 @@ class Model
         $this->values[$key] = $value;
     }
 
-
+    public function save(){
+        $sql = "INSERT INTO " . static::$tableName . " ("
+        . implode(",", static::$columns) . ") VALUES (";
+        foreach(static::$columns as $col) {
+        $sql .= static::getFormatedValue($this->$col) . ",";
+       }
+        $sql[strlen($sql) - 1] = ')';
+        $id = Database::executeSQL($sql);
+        $this->id = $id;
+    }
+    
 
 
     public static function getOne($filters = [], $columns = '*')

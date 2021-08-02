@@ -1,8 +1,20 @@
 <?php 
 
 require_once(dirname(__FILE__, 2) . '/src/config/config.php');
+
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+if($uri === '/' || $uri === ''){
+    $uri = '/days_records.php';
+}
+
+require_once(CONTROLLER_PATH . "/{$uri}");
+
+
+
 # require_once(dirname(__FILE__, 2) . '/src/models/User.php');
-require_once(CONTROLLER_PATH . '/login.php');
+# require_once(CONTROLLER_PATH . '/login.php');
+
 # require_once(MODEL_PATH . '/Login.php');
 
 /*$login  = new Login(['email' => 'chaves@cod3r.com.br', 'password' => 'a']);
