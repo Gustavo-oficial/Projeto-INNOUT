@@ -12,12 +12,11 @@
           return $conn;
   }
 
-    public static function getResultFromQuery($sql){
-
+  public static function getResultFromQuery($sql) {
     $conn = self::getConnection();
-    $resultado = $conn->query($sql);
+    $result = $conn->query($sql);
     $conn->close();
-    return $resultado;
-    }
+    return $result;
+}
            
 }
