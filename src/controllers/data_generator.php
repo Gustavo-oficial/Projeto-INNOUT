@@ -1,8 +1,8 @@
 <?php
 loadModel('WorkingHours');
 
-DataBase::executeSQL('DELETE FROM users');
-DataBase::executeSQL('DELETE FROM users WHERE id > 5');
+Database::executeSQL('DELETE FROM working_hours');
+Database::executeSQL('DELETE FROM users WHERE id > 5');
 
 function verifyHoursTemplate($regularRate, $extraRate, $lazyRate){
     $regularDayTemplate = ['time1' => '8:00:00', 'time2' => '12:00:00', 
@@ -35,11 +35,11 @@ function verifyHoursTemplate($regularRate, $extraRate, $lazyRate){
 
 function populateWorkingHours($userId, $initialDate, $regularRate, $extraRate, $lazyRate) {
     $currentDate = $initialDate;
-    $yesterday = new DateTime();
-    $yesterday->modify('-1 day');
+    $today = new DateTime();
+    $today->modify('-1 day');
     $columns = ['user_id' => $userId, 'work_date' => $currentDate];
 
-    while(isBefore($currentDate, $yesterday)) {
+    while(isBefore($currentDate, $today)) {
         if(!isWeekend($currentDate)) {
             $template = verifyHoursTemplate($regularRate, $extraRate, $lazyRate);
             $columns = array_merge($columns, $template);

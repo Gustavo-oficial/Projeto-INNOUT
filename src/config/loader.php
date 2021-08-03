@@ -16,6 +16,7 @@ function loadView($viewName, $params = array()){
     require_once(VIEWS_PATH . "/{$viewName}.php");
 }
 
+
 function loadTemplateView($viewName, $params = array()){
     if(count($params) > 0){
         foreach ($params as $key => $value) {
@@ -24,6 +25,13 @@ function loadTemplateView($viewName, $params = array()){
             }
         }
     }  
+
+    $user = $_SESSION['user'];
+    $workingHours = WorkingHours::loadFromUserAndDate($user->id, date('Y-m-d'));
+    $workedInterval = $workingHours->getWorkedInterval()->format('%H:%I:%S');
+    $exitTime = $workingHours->meterOPe()->format('H:i:s');
+    $activeClock = $workingHours->getActiveClock();
+
     require_once(TEMPLATE_PATH . "/header.php");
     require_once(TEMPLATE_PATH . "/left.php");
     require_once(VIEWS_PATH . "/{$viewName}.php");

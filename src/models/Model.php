@@ -22,14 +22,15 @@ class Model
 
     public function __get($key)
     {
-        return $this->values[$key];
+        return @$this->values[$key];
     }
 
     public function __set($key, $value)
     {
         $this->values[$key] = $value;
     }
-
+    
+    # função para gerar valores no banco
     public function save(){
         $sql = "INSERT INTO " . static::$tableName . " ("
         . implode(",", static::$columns) . ") VALUES (";
@@ -37,18 +38,26 @@ class Model
         $sql .= static::getFormatedValue($this->$col) . ",";
        }
         $sql[strlen($sql) - 1] = ')';
-        $id = Database::executeSQL($sql);
+        @$id = Database::executeSQL($sql);
         $this->id = $id;
     }
-    
 
-
-    public static function getOne($filters = [], $columns = '*')
-    {
-        $class = get_called_class();
-        $result = static::getResultSetFromSelect($filters, $columns = '*');
-        return $result ? new $class($result->fetch_assoc()): null;
+    public function update() {
+        $sql = "UPDATE " . static::$tableName . " SET ";
+        foreach(static::$columns as $col) {
+            $sql .= " ${col} = " . static::getFormatedValue($this->$col) . ",";
+        }
+        $sql[strlen($sql) - 1] = ' ';
+        $sql .= "WHERE id = {$this->id}";
+        Database::executeSQL($sql);
     }
+    
+    public static function getOne($filters = [], $columns = '*') {
+        $class = get_called_class();
+        $result = static::getResultSetFromSelect($filters, $columns);
+        return $result ? new $class($result->fetch_assoc()) : null;
+    }
+
     public static function get($filters = [], $columns = '*')
     {
         $objects = [];
@@ -63,13 +72,12 @@ class Model
     }
 
 
-    public static function getResultSetFromSelect($filters = [], $columns = '*')
-    {
-        $sql = "SELECT {$columns} FROM " . static::$tableName . static::getFilters($filters);
-
-        $result = DataBase::getResultFromQuery($sql);
-
-        if ($result->num_rows === 0) {
+    public static function getResultSetFromSelect($filters = [], $columns = '*') {
+        $sql = "SELECT ${columns} FROM "
+            . static::$tableName
+            . static::getFilters($filters);
+        $result = Database::getResultFromQuery($sql);
+        if($result->num_rows === 0) {
             return null;
         } else {
             return $result;
@@ -82,7 +90,11 @@ class Model
         if (count($filters) > 0) {
             $sql .= " WHERE 1 = 1";
             foreach ($filters as $column => $value) {
+            if($column == 'raw'){
+                $sql .= " AND {$value}";
+            } else{
                 $sql .= " AND ${column} = " . static::getFormatedValue($value);
+            }
             }
         }
         return $sql;
